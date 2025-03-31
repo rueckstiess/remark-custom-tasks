@@ -6,7 +6,7 @@ const markdown = `
 # Custom Tasks Example
 
 - Regular list item
-- [q] What is a SPA?
+- [q] What's the meaning of life?
 - [x] Completed task
 - [ ] Open task
 - [D] Decision to make
@@ -32,7 +32,7 @@ async function runTest() {
     // Traverse the AST to find list items with markers
     const visit = (node) => {
       if (node.type === 'listItem' && 'marker' in node) {
-        console.log(`Found list item with marker: [${node.marker}]`)
+        console.log(`Found list item with marker [${node.marker}] and taskContent '${node.taskContent}'`)
         markersFound++
       }
 
@@ -42,20 +42,7 @@ async function runTest() {
     }
 
     visit(processedAst)
-
     console.log(`\nTotal markers found: ${markersFound}`)
-
-    // Output the processed markdown
-    console.log('\nProcessed Markdown:')
-    console.log(String(file))
-
-    // For debugging - inspect part of the AST
-    console.log('\nFirst few list items:')
-    const listItems = []
-    visit(processedAst, 'listItem', (node) => {
-      listItems.push(node)
-    })
-    console.log(JSON.stringify(listItems.slice(0, 3), null, 2))
 
   } catch (error) {
     console.error('Test failed:', error)
