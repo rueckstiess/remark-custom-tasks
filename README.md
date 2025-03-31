@@ -84,7 +84,7 @@ This will run all unit tests in the `test` directory.
 For manual testing with a sample markdown input:
 
 ```bash
-npm run manual
+npm run demo
 ```
 
 You can also test with your own Markdown files using remark-cli:

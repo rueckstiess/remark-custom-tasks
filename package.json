@@ -5,9 +5,22 @@
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    }
+  },
   "scripts": {
     "test": "node --test *.test.js",
-    "demo": "node demo.js"
+    "demo": "node demo.js",
+    "prepublishOnly": "npm test"
   },
   "keywords": [
     "unified",
@@ -16,10 +29,19 @@
     "markdown",
     "mdast",
     "task",
-    "cannonball"
+    "cannonball",
+    "obsidian"
   ],
-  "author": "",
+  "author": "Thomas Rueckstiess <from+github@tomr.au> (https://tomr.au)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rueckstiess/remark-custom-tasks.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rueckstiess/remark-custom-tasks/issues"
+  },
+  "homepage": "https://github.com/rueckstiess/remark-custom-tasks#readme",
   "dependencies": {
     "unist-util-visit": "^4.1.2"
   },
