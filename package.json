@@ -1,0 +1,33 @@
+{
+  "name": "remark-custom-tasks",
+  "version": "0.1.0",
+  "description": "remark plugin for custom task markers in markdown lists",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "node --test *.test.js",
+    "demo": "node demo.js"
+  },
+  "keywords": [
+    "unified",
+    "remark",
+    "remark-plugin",
+    "markdown",
+    "mdast",
+    "task",
+    "cannonball"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "unist-util-visit": "^4.1.2"
+  },
+  "devDependencies": {
+    "@types/mdast": "^3.0.11",
+    "remark": "^14.0.3"
+  },
+  "peerDependencies": {
+    "unified": "^10.0.0"
+  }
+}
