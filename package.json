@@ -20,6 +20,8 @@
   "scripts": {
     "test": "node --test *.test.js",
     "demo": "node demo.js",
+    "demo:serialization": "node serialization-demo.js",
+    "demo:roundtrip": "node roundtrip-demo.js",
     "prepublishOnly": "npm test"
   },
   "keywords": [
@@ -43,6 +45,7 @@
   },
   "homepage": "https://github.com/rueckstiess/remark-custom-tasks#readme",
   "dependencies": {
+    "mdast-util-to-markdown": "^2.1.2",
     "unist-util-visit": "^4.1.2"
   },
   "devDependencies": {

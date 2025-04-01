@@ -2,6 +2,9 @@
 
 A [remark](https://github.com/remarkjs/remark) plugin that adds support for custom task markers in markdown lists.
 
+✅ **Parses** custom task markers like `[q]`, `[D]`, `[!]` in list items  
+✅ **Serializes** custom task markers correctly back to markdown
+
 ## Installation
 
 ```bash
@@ -9,6 +12,8 @@ npm install remark-custom-tasks
 ```
 
 ## Usage
+
+### Parsing Custom Task Markers
 
 ```js
 import { remark } from 'remark'
@@ -28,6 +33,38 @@ async function process() {
     .process(markdown)
     
   console.log(String(file))
+}
+
+process()
+```
+
+### Serializing Custom Task Markers
+
+The plugin provides a separate function for serialization to ensure custom markers are correctly preserved:
+
+```js
+import { remark } from 'remark'
+import { toMarkdown } from 'mdast-util-to-markdown'
+import remarkCustomTasks, { customTasksToMarkdown } from 'remark-custom-tasks'
+
+const markdown = `
+- [q] Question to answer
+- [x] Completed task
+`
+
+async function process() {
+  // Parse markdown to AST
+  const processor = remark().use(remarkCustomTasks)
+  const ast = processor.parse(markdown)
+  processor.runSync(ast)
+  
+  // Serialize AST back to markdown
+  const serialized = toMarkdown(ast, {
+    extensions: [customTasksToMarkdown()]
+  })
+  
+  console.log(serialized)
+  // Output preserves original format with task markers
 }
 
 process()
@@ -81,10 +118,14 @@ npm test
 
 This will run all unit tests in the `test` directory.
 
-For manual testing with a sample markdown input:
+For manual testing with sample markdown input:
 
 ```bash
+# Test parsing
 npm run demo
+
+# Test serialization
+npm run demo:serialization
 ```
 
 You can also test with your own Markdown files using remark-cli:
