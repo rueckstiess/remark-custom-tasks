@@ -3,11 +3,12 @@ import { Root, ListItem } from '@types/mdast';
 import { Options as ToMarkdownOptions } from 'mdast-util-to-markdown';
 
 /**
- * Extended ListItem interface with custom marker property
+ * CustomTask node type for representing list items with custom task markers
  */
-export interface CustomListItem extends ListItem {
-  marker?: string;
-  taskContent?: string;
+export interface CustomTask extends Omit<ListItem, 'type'> {
+  type: 'customTask';
+  marker: string;
+  taskContent: string;
 }
 
 /**

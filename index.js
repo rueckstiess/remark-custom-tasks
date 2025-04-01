@@ -5,7 +5,7 @@
  * @typedef {import('remark').ListItem} ListItem
  * @typedef {import('remark').Paragraph} Paragraph
  * @typedef {import('remark').Text} Text
- * @typedef {ListItem & {marker?: string, taskContent?: string}} CustomListItem
+ * @typedef {Omit<ListItem, 'type'> & {type: 'customTask', marker: string, taskContent: string}} CustomTask
  * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownOptions
  * @typedef {import('mdast-util-to-markdown').Handle} ToMarkdownHandle
  */
@@ -66,7 +66,8 @@ export default function remarkCustomTasks() {
         const marker = markerMatch[1]
         const content = markerMatch[2]
 
-        // Add marker and content to the list item node
+        // Change the node type to customTask
+        node.type = 'customTask'
         node.marker = marker
         node.taskContent = content
       }
@@ -83,8 +84,9 @@ export function customTasksToMarkdown() {
   return {
     // Configure how markdown is generated
     bullet: '-', // Use hyphen for bullet lists to match input expectation
+    listItemIndent: 'one', // Use one space between bullet and content
     handlers: {
-      listItem: listItemWithCustomMarker,
+      customTask: customTaskHandler, // Handler for customTask nodes
       // Add custom text handler to prevent escaping of [ characters
       text: function (node) {
         // For text nodes, make sure square brackets aren't escaped
@@ -95,21 +97,17 @@ export function customTasksToMarkdown() {
 }
 
 /**
- * Custom handler for serializing list items with custom markers
+ * Custom handler for serializing customTask nodes
  *
  * @type {ToMarkdownHandle}
  */
-function listItemWithCustomMarker(node, parent, state, info) {
-  const customMarker = typeof node.marker === 'string'
-  const marker = customMarker ? `[${node.marker}] ` : ''
+function customTaskHandler(node, parent, state, info) {
+  const marker = `[${node.marker}] `
   const tracker = state.createTracker(info)
-
-  if (customMarker) {
-    tracker.move(marker)
-  }
+  tracker.move(marker)
 
   // Create a node clone without the marker in the text content
-  if (customMarker && node.children?.length > 0 && node.children[0].type === 'paragraph') {
+  if (node.children?.length > 0 && node.children[0].type === 'paragraph') {
     const paragraph = node.children[0]
     if (paragraph.children?.length > 0 && paragraph.children[0].type === 'text') {
       const textNode = paragraph.children[0]
@@ -117,8 +115,11 @@ function listItemWithCustomMarker(node, parent, state, info) {
       // Temporarily modify the text node to not include the marker
       textNode.value = textNode.value.replace(/^\s*\[[^\]]+\]\s*/, '')
 
-      // Get the value using default handler
-      const value = defaultHandlers.listItem(node, parent, state, {
+      // Create a copy of the node with type 'listItem' for default handling
+      const listItemNode = { ...node, type: 'listItem' }
+      
+      // Get the value using default listItem handler
+      const value = defaultHandlers.listItem(listItemNode, parent, state, {
         ...info,
         ...tracker.current()
       })
@@ -133,18 +134,17 @@ function listItemWithCustomMarker(node, parent, state, info) {
     }
   }
 
-  // Default handling for non-custom-task list items
-  let value = defaultHandlers.listItem(node, parent, state, {
+  // Fallback: convert to listItem and use default handler, then add marker
+  const listItemNode = { ...node, type: 'listItem' }
+  let value = defaultHandlers.listItem(listItemNode, parent, state, {
     ...info,
     ...tracker.current()
   })
 
-  // Add the custom marker if needed
-  if (customMarker) {
-    value = value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, function ($0) {
-      return $0 + marker
-    })
-  }
+  // Add the custom marker
+  value = value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, function ($0) {
+    return $0 + marker
+  })
 
   return value
 }

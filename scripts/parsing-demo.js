@@ -26,14 +26,18 @@ async function runTest() {
     const ast = processor.parse(markdown)
     const processedAst = processor.runSync(ast, file)
 
-    // Check if our plugin added markers
-    let markersFound = 0
+    // Check if our plugin added customTask nodes
+    let customTasksFound = 0
+    let regularListItems = 0
 
-    // Traverse the AST to find list items with markers
+    // Traverse the AST to find customTask nodes
     const visit = (node) => {
-      if (node.type === 'listItem' && 'marker' in node) {
-        console.log(`Found list item with marker [${node.marker}] and taskContent '${node.taskContent}'`)
-        markersFound++
+      if (node.type === 'customTask') {
+        console.log(`Found customTask with marker [${node.marker}] and taskContent '${node.taskContent}'`)
+        customTasksFound++
+      } else if (node.type === 'listItem') {
+        console.log(`Found regular listItem with content '${node.children[0]?.children[0]?.value || ''}'`)
+        regularListItems++
       }
 
       if (node.children) {
@@ -42,7 +46,8 @@ async function runTest() {
     }
 
     visit(processedAst)
-    console.log(`\nTotal markers found: ${markersFound}`)
+    console.log(`\nTotal custom tasks found: ${customTasksFound}`)
+    console.log(`Total regular list items found: ${regularListItems}`)
 
   } catch (error) {
     console.error('Test failed:', error)

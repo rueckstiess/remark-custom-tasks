@@ -1,5 +1,6 @@
 import { remark } from 'remark'
 import fs from 'node:fs/promises'
+import { visit } from 'unist-util-visit'
 import remarkCustomTasks from '../index.js'
 
 async function runDemo() {
@@ -13,9 +14,27 @@ async function runDemo() {
     console.log('='.repeat(50))
     console.log(markdown)
 
-    // Parse and stringify using the same plugin instance
-    // With the refactored plugin, serialization is built-in
+    // Parse and process the markdown
     const processor = remark().use(remarkCustomTasks)
+    const ast = processor.parse(markdown)
+    const processedAst = processor.runSync(ast)
+    
+    // Count node types in the AST
+    let customTaskCount = 0
+    let listItemCount = 0
+    
+    visit(processedAst, (node) => {
+      if (node.type === 'customTask') customTaskCount++
+      else if (node.type === 'listItem') listItemCount++
+    })
+    
+    console.log('\n' + '='.repeat(50))
+    console.log('AST ANALYSIS:')
+    console.log('='.repeat(50))
+    console.log(`- customTask nodes: ${customTaskCount}`)
+    console.log(`- listItem nodes: ${listItemCount}`)
+    
+    // Serialize back to markdown
     const result = await processor.process(markdown)
     const serialized = String(result)
 
@@ -53,6 +72,9 @@ async function runDemo() {
         }
       }
     }
+    
+    console.log('\n💡 NOTE: The plugin now transforms list items with task markers')
+    console.log('into customTask nodes while preserving the original Markdown syntax.')
 
   } catch (error) {
     console.error('Demo failed:', error)

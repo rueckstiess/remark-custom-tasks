@@ -17,7 +17,7 @@ const markdown = `
 async function runDemo() {
   try {
     console.log('='.repeat(50))
-    console.log('DEMO: SERIALIZATION OF CUSTOM TASK MARKERS')
+    console.log('DEMO: SERIALIZATION OF CUSTOM TASK NODES')
     console.log('='.repeat(50))
 
     // Step 1: Parse the input markdown
@@ -31,22 +31,26 @@ async function runDemo() {
     const ast = processor.parse(markdown)
     const transformedAst = processor.runSync(ast)
 
-    // Step 2: Show AST nodes with custom task markers
-    console.log('\n🔍 STEP 2: Inspect AST for custom task markers')
-    console.log('Custom task markers found:')
+    // Step 2: Show AST nodes with custom task type
+    console.log('\n🔍 STEP 2: Inspect AST for customTask nodes')
+    console.log('Custom task nodes found:')
 
-    function findMarkers(node, depth = 0) {
-      if (node.type === 'listItem' && typeof node.marker === 'string') {
+    function findCustomTasks(node, depth = 0) {
+      if (node.type === 'customTask') {
         const indent = '  '.repeat(depth)
-        console.log(`${indent}- Item with marker [${node.marker}]: "${node.taskContent}"`)
+        console.log(`${indent}- customTask with marker [${node.marker}]: "${node.taskContent}"`)
+      } else if (node.type === 'listItem') {
+        const indent = '  '.repeat(depth)
+        const content = node.children?.[0]?.children?.[0]?.value || ''
+        console.log(`${indent}- Regular listItem: "${content}"`)
       }
 
       if (node.children) {
-        node.children.forEach(child => findMarkers(child, depth + 1))
+        node.children.forEach(child => findCustomTasks(child, depth + 1))
       }
     }
 
-    findMarkers(transformedAst)
+    findCustomTasks(transformedAst)
 
     // Step 3: Serialize back to markdown
     console.log('\n📄 STEP 3: Serialize AST back to markdown')
@@ -63,9 +67,26 @@ async function runDemo() {
     const isPreserved = serialized.trim() === markdown.trim()
     console.log(`\n✨ RESULT: Format preserved: ${isPreserved ? '✅ Yes' : '❌ No'}`)
 
-    // Demonstrate what it would look like without the serialization extensions
-    console.log('\n💡 NOTE: The plugin now automatically handles serialization!')
-    console.log('No need to manually add the customTasksToMarkdown() extension.')
+    // Count node types in the AST
+    let customTaskCount = 0
+    let listItemCount = 0
+    
+    const countNodes = (node) => {
+      if (node.type === 'customTask') customTaskCount++
+      else if (node.type === 'listItem') listItemCount++
+      
+      if (node.children) {
+        node.children.forEach(countNodes)
+      }
+    }
+    
+    countNodes(transformedAst)
+    console.log(`\n📊 Node Statistics:`)
+    console.log(`- customTask nodes: ${customTaskCount}`)
+    console.log(`- listItem nodes: ${listItemCount}`)
+
+    console.log('\n💡 NOTE: The plugin now converts task items to customTask node type!')
+    console.log('This makes it easier to visit only task nodes in the AST.')
 
   } catch (error) {
     console.error('Demo failed:', error)
