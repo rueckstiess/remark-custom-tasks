@@ -1,5 +1,6 @@
 /**
  * @typedef {import('unified').Plugin} Plugin
+ * @typedef {import('unified').Processor} Processor
  * @typedef {import('@types/mdast').Root} Root
  * @typedef {import('@types/mdast').ListItem} ListItem
  * @typedef {import('@types/mdast').Paragraph} Paragraph
@@ -10,16 +11,27 @@
  */
 
 import { visit } from 'unist-util-visit'
-// Import from mdast-util-to-markdown
 import { defaultHandlers } from 'mdast-util-to-markdown'
 
 /**
- * Plugin to add marker metadata to list items with custom task syntax.
+ * Plugin to add support for custom task markers in markdown lists.
+ * Handles both parsing and serialization.
  *
+ * @returns {undefined}
  * @type {Plugin<[], Root>}
  */
-function remarkCustomTasks() {
+export default function remarkCustomTasks() {
+  const data = this.data()
+
+  // Add serialization extensions
+  const toMarkdownExtensions =
+    data.toMarkdownExtensions || (data.toMarkdownExtensions = [])
+
+  toMarkdownExtensions.push(customTasksToMarkdown())
+
   /**
+   * Transformer function that processes the syntax tree
+   *
    * @param {Root} tree
    * @returns {undefined}
    */
@@ -62,7 +74,6 @@ function remarkCustomTasks() {
   }
 }
 
-
 /**
  * Configure serialization to handle custom task markers
  *
@@ -75,7 +86,7 @@ export function customTasksToMarkdown() {
     handlers: {
       listItem: listItemWithCustomMarker,
       // Add custom text handler to prevent escaping of [ characters
-      text: function(node) {
+      text: function (node) {
         // For text nodes, make sure square brackets aren't escaped
         return node.value.replace(/\\(\[)/g, '$1')
       }
@@ -92,11 +103,11 @@ function listItemWithCustomMarker(node, parent, state, info) {
   const customMarker = typeof node.marker === 'string'
   const marker = customMarker ? `[${node.marker}] ` : ''
   const tracker = state.createTracker(info)
-  
+
   if (customMarker) {
     tracker.move(marker)
   }
-  
+
   // Create a node clone without the marker in the text content
   if (customMarker && node.children?.length > 0 && node.children[0].type === 'paragraph') {
     const paragraph = node.children[0]
@@ -105,37 +116,35 @@ function listItemWithCustomMarker(node, parent, state, info) {
       const originalText = textNode.value
       // Temporarily modify the text node to not include the marker
       textNode.value = textNode.value.replace(/^\s*\[[^\]]+\]\s*/, '')
-      
+
       // Get the value using default handler
       const value = defaultHandlers.listItem(node, parent, state, {
         ...info,
         ...tracker.current()
       })
-      
+
       // Restore the original text
       textNode.value = originalText
-      
+
       // Add the custom marker
-      return value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, function($0) {
+      return value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, function ($0) {
         return $0 + marker
       })
     }
   }
-  
+
   // Default handling for non-custom-task list items
   let value = defaultHandlers.listItem(node, parent, state, {
     ...info,
     ...tracker.current()
   })
-  
+
   // Add the custom marker if needed
   if (customMarker) {
-    value = value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, function($0) {
+    value = value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, function ($0) {
       return $0 + marker
     })
   }
-  
+
   return value
 }
-
-export default remarkCustomTasks

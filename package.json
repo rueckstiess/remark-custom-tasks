@@ -1,6 +1,6 @@
 {
   "name": "remark-custom-tasks",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "remark plugin for custom task markers in markdown lists",
   "type": "module",
   "main": "index.js",
@@ -18,10 +18,10 @@
     }
   },
   "scripts": {
-    "test": "node --test *.test.js",
-    "demo": "node demo.js",
-    "demo:serialization": "node serialization-demo.js",
-    "demo:roundtrip": "node roundtrip-demo.js",
+    "test": "node --test tests/*.test.js",
+    "demo:parsing": "node scripts/parsing-demo.js",
+    "demo:serialization": "node scripts/serialization-demo.js",
+    "demo:roundtrip": "node scripts/roundtrip-demo.js",
     "prepublishOnly": "npm test"
   },
   "keywords": [

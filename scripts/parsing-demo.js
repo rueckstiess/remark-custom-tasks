@@ -1,5 +1,5 @@
 import { remark } from 'remark'
-import remarkCustomTasks from './index.js'
+import remarkCustomTasks from '../index.js'
 
 // Sample Markdown with custom task syntax
 const markdown = `

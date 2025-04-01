@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { remark } from 'remark'
 import { visit } from 'unist-util-visit'
-import remarkCustomTasks from './index.js'
+import remarkCustomTasks from '../index.js'
 
 test('remarkCustomTasks', async (t) => {
   await t.test('should add marker attribute to list items with custom task syntax', () => {

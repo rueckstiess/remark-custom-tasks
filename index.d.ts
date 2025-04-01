@@ -11,12 +11,15 @@ export interface CustomListItem extends ListItem {
 }
 
 /**
- * Plugin to add marker metadata to list items with custom task syntax
+ * Plugin to add support for custom task markers in markdown lists.
+ * Handles both parsing and serialization.
  */
 declare const remarkCustomTasks: Plugin<[], Root>;
 
 /**
- * Configuration for serialization to handle custom task markers
+ * Configuration for serialization to handle custom task markers.
+ * This is exposed for advanced usage but is automatically registered
+ * when using the plugin.
  */
 export function customTasksToMarkdown(): ToMarkdownOptions;
 

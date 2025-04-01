@@ -40,12 +40,11 @@ process()
 
 ### Serializing Custom Task Markers
 
-The plugin provides a separate function for serialization to ensure custom markers are correctly preserved:
+The plugin now automatically supports serialization! The serialization functionality is built-in when you use the plugin:
 
 ```js
 import { remark } from 'remark'
-import { toMarkdown } from 'mdast-util-to-markdown'
-import remarkCustomTasks, { customTasksToMarkdown } from 'remark-custom-tasks'
+import remarkCustomTasks from 'remark-custom-tasks'
 
 const markdown = `
 - [q] Question to answer
@@ -53,21 +52,27 @@ const markdown = `
 `
 
 async function process() {
-  // Parse markdown to AST
-  const processor = remark().use(remarkCustomTasks)
-  const ast = processor.parse(markdown)
-  processor.runSync(ast)
+  // Parse and then stringify with the same plugin
+  const file = await remark()
+    .use(remarkCustomTasks)
+    .process(markdown)
   
-  // Serialize AST back to markdown
-  const serialized = toMarkdown(ast, {
-    extensions: [customTasksToMarkdown()]
-  })
-  
-  console.log(serialized)
+  console.log(String(file))
   // Output preserves original format with task markers
 }
 
 process()
+```
+
+For advanced usage, the serialization configuration is still available as a separate export:
+
+```js
+import { remark } from 'remark'
+import { toMarkdown } from 'mdast-util-to-markdown'
+import remarkCustomTasks, { customTasksToMarkdown } from 'remark-custom-tasks'
+
+// For direct access to the serialization config
+const serializationOptions = customTasksToMarkdown()
 ```
 
 ## Syntax
