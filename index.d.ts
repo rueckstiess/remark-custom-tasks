@@ -1,4 +1,4 @@
-import { Plugin } from 'unified';
+import { Plugin } from 'remark';
 import { Root, ListItem } from '@types/mdast';
 import { Options as ToMarkdownOptions } from 'mdast-util-to-markdown';
 
@@ -14,7 +14,7 @@ export interface CustomListItem extends ListItem {
  * Plugin to add support for custom task markers in markdown lists.
  * Handles both parsing and serialization.
  */
-declare const remarkCustomTasks: Plugin<[], Root>;
+declare const remarkCustomTasks: Plugin<[], Root, Root>;
 
 /**
  * Configuration for serialization to handle custom task markers.

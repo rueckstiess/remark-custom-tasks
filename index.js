@@ -1,10 +1,10 @@
 /**
  * @typedef {import('unified').Plugin} Plugin
  * @typedef {import('unified').Processor} Processor
- * @typedef {import('@types/mdast').Root} Root
- * @typedef {import('@types/mdast').ListItem} ListItem
- * @typedef {import('@types/mdast').Paragraph} Paragraph
- * @typedef {import('@types/mdast').Text} Text
+ * @typedef {import('remark').Root} Root
+ * @typedef {import('remark').ListItem} ListItem
+ * @typedef {import('remark').Paragraph} Paragraph
+ * @typedef {import('remark').Text} Text
  * @typedef {ListItem & {marker?: string, taskContent?: string}} CustomListItem
  * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownOptions
  * @typedef {import('mdast-util-to-markdown').Handle} ToMarkdownHandle
@@ -18,7 +18,7 @@ import { defaultHandlers } from 'mdast-util-to-markdown'
  * Handles both parsing and serialization.
  *
  * @returns {undefined}
- * @type {Plugin<[], Root>}
+ * @type {Plugin<[], Root, Root>}
  */
 export default function remarkCustomTasks() {
   const data = this.data()
